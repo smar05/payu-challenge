@@ -2,7 +2,15 @@ package com.payulatam.recruiting;
 
 import java.util.Arrays;
 
+import com.payulatam.recruiting.services.OrderNetworkService;
+
 public class NetworkPrioritization {
+
+    private final OrderNetworkService orderNetworkService;
+
+    public NetworkPrioritization() {
+        this.orderNetworkService = new OrderNetworkService();
+    }
 
     public enum Criteria {
         RESPONSE_TIME, COST;
@@ -10,35 +18,11 @@ public class NetworkPrioritization {
 
     public int[] prioritizeNetwork(final int[] responseTimes, final int[] cost, final Criteria priority) {
         final Integer[] indices = switch (priority) {
-            case RESPONSE_TIME -> orderNetwork(responseTimes, cost);
-            case COST -> orderNetwork(cost, responseTimes);
+            case RESPONSE_TIME -> orderNetworkService.orderNetwork(responseTimes, cost);
+            case COST -> orderNetworkService.orderNetwork(cost, responseTimes);
         };
 
         return Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
-    }
-
-    private Integer[] orderNetwork(final int[] firstArray, final int[] secondArray) {
-        // Validacion de la longitud de los arrays
-        if (firstArray.length != secondArray.length) {
-            throw new IllegalArgumentException("The input arrays lengths are not equal.");
-        }
-
-        // Indices de las redes iniciales
-        final int n = firstArray.length;
-        final Integer[] indices = new Integer[n];
-        Arrays.setAll(indices, i -> i);
-
-        Arrays.sort(indices, (a, b) -> {
-            // Si los valores son distintos, se toma el menor valor del mismo array
-            if (firstArray[a] != firstArray[b]) {
-                return Integer.compare(firstArray[a], firstArray[b]);
-            }
-
-            // Si los valores son iguales, se desempata en base al otro array
-            return Integer.compare(secondArray[a], secondArray[b]);
-        });
-
-        return indices;
     }
 
     // TODO: Borrar main
